@@ -1,0 +1,51 @@
+# File class hasil kompilasi
+*.class
+
+# Output folder umum
+/bin/
+/out/
+/build/
+
+# File log
+*.log
+
+# File sementara editor
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# File konfigurasi IDE
+*.iml
+.idea/
+*.ipr
+*.iws
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# IntelliJ
+out/
+
+# Maven
+target/
+
+# Gradle
+.gradle/
+build/
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
