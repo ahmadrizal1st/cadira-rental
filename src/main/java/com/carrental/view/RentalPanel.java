@@ -11,6 +11,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
+import javax.swing.border.TitledBorder;
 
 public class RentalPanel extends JPanel {
     private JTable rentalTable;
@@ -21,76 +24,169 @@ public class RentalPanel extends JPanel {
     private JSpinner rentalTimeSpinner, returnTimeSpinner;
     private JLabel totalCostLabel;
 
+    
+
     public RentalPanel() {
-        setLayout(new BorderLayout());
+        // Apply theme before creating components
+        Theme.applyTheme();
+        
+        setLayout(new BorderLayout(10, 10));
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setBackground(Theme.SECONDARY_COLOR);
 
         // Table setup
-        tableModel = new DefaultTableModel(new Object[]{"ID", "Car ID", "Customer ID", "Rental Datetime", "Return Datetime", "Total Cost"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"ID", "Car", "Customer", "Rental Date", "Return Date", "Total Cost"}, 0);
         rentalTable = new JTable(tableModel);
-        add(new JScrollPane(rentalTable), BorderLayout.CENTER);
+        rentalTable.setRowHeight(25);
+        rentalTable.setFillsViewportHeight(true);
+        rentalTable.setSelectionBackground(Theme.LIGHT_RED);
+        rentalTable.setSelectionForeground(Theme.TERTIARY_COLOR);
+        
+        JScrollPane tableScroll = new JScrollPane(rentalTable);
+        tableScroll.setBorder(Theme.PANEL_BORDER);
+        add(tableScroll, BorderLayout.CENTER);
 
         // Form panel
-        JPanel formPanel = new JPanel(new GridLayout(6, 2));
-        formPanel.setBorder(BorderFactory.createTitledBorder("Rental Details"));
+        JPanel formPanel = new JPanel(new GridLayout(6, 2, 10, 10));
+        formPanel.setBackground(Theme.SECONDARY_COLOR);
+        formPanel.setBorder(
+            BorderFactory.createTitledBorder(
+                BorderFactory.createCompoundBorder(
+                    new MatteBorder(1, 0, 0, 0, Theme.SUPPORT_COLOR),
+                    new EmptyBorder(5, 5, 5, 5)
+                ),
+                "Rental Details",
+                TitledBorder.LEFT,
+                TitledBorder.TOP,
+                Theme.SUBTITLE_FONT,
+                Theme.PRIMARY_COLOR
+            )
+        );
 
-        formPanel.add(new JLabel("Car ID:"));
-        carIdField = new JTextField();
-        formPanel.add(carIdField);
+        addFormField(formPanel, "Car ID:", carIdField = new JTextField());
+        addFormField(formPanel, "Customer ID:", customerIdField = new JTextField());
 
-        formPanel.add(new JLabel("Customer ID:"));
-        customerIdField = new JTextField();
-        formPanel.add(customerIdField);
-
-        formPanel.add(new JLabel("Rental Datetime:"));
-        JPanel rentalPanel = new JPanel(new BorderLayout());
+        // Rental Date/Time
+        JLabel rentalLabel = new JLabel("Rental Datetime:");
+        rentalLabel.setFont(Theme.BODY_FONT);
+        formPanel.add(rentalLabel);
         
-        // Date Picker for Rental Date
-        rentalDatePicker = new JXDatePicker();  
-        rentalPanel.add(rentalDatePicker, BorderLayout.CENTER);
+        JPanel rentalDateTimePanel = new JPanel(new BorderLayout(5, 0));
+        rentalDateTimePanel.setBackground(Theme.SECONDARY_COLOR);
         
-        // Time Spinner for Rental Time only
-        rentalTimeSpinner = new JSpinner(new SpinnerDateModel(
-                new Date(), null, null, java.util.Calendar.HOUR_OF_DAY));
+        rentalDatePicker = new JXDatePicker();
+        styleDatePicker(rentalDatePicker);
+        rentalDateTimePanel.add(rentalDatePicker, BorderLayout.CENTER);
+        
+        rentalTimeSpinner = new JSpinner(new SpinnerDateModel(new Date(), null, null, java.util.Calendar.HOUR_OF_DAY));
         JSpinner.DateEditor rentalEditor = new JSpinner.DateEditor(rentalTimeSpinner, "HH:mm");
-        rentalTimeSpinner.setEditor(rentalEditor);
-        rentalPanel.add(rentalTimeSpinner, BorderLayout.EAST);
-        formPanel.add(rentalPanel);
+        styleTimeSpinner(rentalTimeSpinner, rentalEditor);
+        rentalDateTimePanel.add(rentalTimeSpinner, BorderLayout.EAST);
+        formPanel.add(rentalDateTimePanel);
 
-        formPanel.add(new JLabel("Return Datetime:"));
-        JPanel returnPanel = new JPanel(new BorderLayout());
+        // Return Date/Time
+        JLabel returnLabel = new JLabel("Return Datetime:");
+        returnLabel.setFont(Theme.BODY_FONT);
+        formPanel.add(returnLabel);
         
-        // Date Picker for Return Date
+        JPanel returnDateTimePanel = new JPanel(new BorderLayout(5, 0));
+        returnDateTimePanel.setBackground(Theme.SECONDARY_COLOR);
+        
         returnDatePicker = new JXDatePicker();
-        returnPanel.add(returnDatePicker, BorderLayout.CENTER);
-
-        // Time Spinner for Return Time only
-        returnTimeSpinner = new JSpinner(new SpinnerDateModel(
-                new Date(), null, null, java.util.Calendar.HOUR_OF_DAY));
+        styleDatePicker(returnDatePicker);
+        returnDateTimePanel.add(returnDatePicker, BorderLayout.CENTER);
+        
+        returnTimeSpinner = new JSpinner(new SpinnerDateModel(new Date(), null, null, java.util.Calendar.HOUR_OF_DAY));
         JSpinner.DateEditor returnEditor = new JSpinner.DateEditor(returnTimeSpinner, "HH:mm");
-        returnTimeSpinner.setEditor(returnEditor);
-        returnPanel.add(returnTimeSpinner, BorderLayout.EAST);
-        formPanel.add(returnPanel);
+        styleTimeSpinner(returnTimeSpinner, returnEditor);
+        returnDateTimePanel.add(returnTimeSpinner, BorderLayout.EAST);
+        formPanel.add(returnDateTimePanel);
 
-        formPanel.add(new JLabel("Total Cost:"));
+        // Total Cost
+        JLabel costLabel = new JLabel("Total Cost:");
+        costLabel.setFont(Theme.BODY_FONT);
+        formPanel.add(costLabel);
+        
         totalCostLabel = new JLabel("0.00");
+        totalCostLabel.setFont(Theme.BODY_FONT);
+        totalCostLabel.setBorder(BorderFactory.createCompoundBorder(
+            new MatteBorder(1, 1, 1, 1, Theme.SUPPORT_COLOR),
+            new EmptyBorder(5, 10, 5, 10)
+        ));
         formPanel.add(totalCostLabel);
 
         // Button panel
-        JPanel buttonPanel = new JPanel();
-        addButton = new JButton("Add Rental");
-        updateButton = new JButton("Update Rental");
-        deleteButton = new JButton("Delete Rental");
-        calculateCostButton = new JButton("Calculate Cost");
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+        buttonPanel.setBackground(Theme.SECONDARY_COLOR);
+        
+        addButton = createStyledButton("Add Rental");
+        updateButton = createStyledButton("Update Rental");
+        deleteButton = createStyledButton("Delete Rental");
+        calculateCostButton = createStyledButton("Calculate Cost");
+        
         buttonPanel.add(addButton);
         buttonPanel.add(updateButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(calculateCostButton);
 
-        JPanel southPanel = new JPanel(new BorderLayout());
+        JPanel southPanel = new JPanel(new BorderLayout(10, 10));
+        southPanel.setBorder(Theme.PANEL_BORDER);
+        southPanel.setBackground(Theme.SECONDARY_COLOR);
         southPanel.add(formPanel, BorderLayout.CENTER);
         southPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         add(southPanel, BorderLayout.SOUTH);
+    }
+
+    private void addFormField(JPanel panel, String labelText, JTextField field) {
+        JLabel label = new JLabel(labelText);
+        label.setFont(Theme.BODY_FONT);
+        panel.add(label);
+        
+        field.setFont(Theme.BODY_FONT);
+        field.setBorder(Theme.INPUT_BORDER);
+        field.setPreferredSize(Theme.DEFAULT_FIELD_SIZE);
+        panel.add(field);
+    }
+
+    private JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(Theme.BUTTON_FONT);
+        button.setBackground(Theme.PRIMARY_COLOR);
+        button.setForeground(Theme.SECONDARY_COLOR);
+        button.setFocusPainted(false);
+        button.setPreferredSize(Theme.DEFAULT_BUTTON_SIZE);
+        button.setBorder(Theme.ROUNDED_BORDER);
+        
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(Theme.PRIMARY_COLOR.brighter());
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(Theme.PRIMARY_COLOR);
+            }
+        });
+        
+        return button;
+    }
+
+    private void styleDatePicker(JXDatePicker picker) {
+        picker.setFormats("dd/MM/yyyy");
+        picker.getEditor().setFont(Theme.BODY_FONT);
+        picker.getEditor().setBorder(Theme.INPUT_BORDER);
+        picker.getEditor().setBackground(Theme.SECONDARY_COLOR);
+        picker.getEditor().setForeground(Theme.TERTIARY_COLOR);
+        picker.setBorder(BorderFactory.createEmptyBorder());
+    }
+
+    private void styleTimeSpinner(JSpinner spinner, JSpinner.DateEditor editor) {
+        spinner.setFont(Theme.BODY_FONT);
+        spinner.setBorder(Theme.INPUT_BORDER);
+        spinner.setBackground(Theme.SECONDARY_COLOR);
+        spinner.setForeground(Theme.TERTIARY_COLOR);
+        editor.getTextField().setBorder(BorderFactory.createEmptyBorder());
+        editor.getTextField().setBackground(Theme.SECONDARY_COLOR);
     }
 
     public DefaultTableModel getTableModel() {

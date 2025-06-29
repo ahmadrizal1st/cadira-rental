@@ -9,20 +9,10 @@ import javax.swing.table.DefaultTableModel;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-
-import javax.swing.JSpinner;
-import javax.swing.SpinnerDateModel;
-import java.sql.Time;
-import java.util.Calendar;
 import java.util.Date;
-
-import org.jdesktop.swingx.JXDatePicker;
 
 public class RentalController {
     private RentalPanel rentalPanel;
@@ -169,70 +159,6 @@ public class RentalController {
             JOptionPane.showMessageDialog(rentalPanel, "Please select a rental to delete.", "No Selection", JOptionPane.WARNING_MESSAGE);
         }
     }
-    
-    /**
- * Processes datetime value and sets the corresponding date picker and time spinner
- * @param datetimeObj The datetime value from table model (could be String, Timestamp, etc.)
- * @param datePicker The JXDatePicker component to set the date
- * @param timeSpinner The JSpinner component to set the time
- */
-//private void processDateTime(Object datetimeObj, JXDatePicker datePicker, JSpinner timeSpinner) {
-//    if (datetimeObj == null) {
-//        datePicker.setDate(null);
-//        timeSpinner.setValue(null);
-//        return;
-//    }
-//
-//    try {
-//        // Convert input to LocalDateTime
-//        LocalDateTime ldt = null;
-//        
-//        if (datetimeObj instanceof java.sql.Timestamp) {
-//            ldt = ((java.sql.Timestamp) datetimeObj).toLocalDateTime();
-//        } 
-//        else if (datetimeObj instanceof String) {
-//            String datetimeStr = (String) datetimeObj;
-//            
-//            // Handle both ISO format (2025-06-29T10:22) and traditional format (2025-06-29 10:22:00)
-//            if (datetimeStr.contains("T")) {
-//                ldt = LocalDateTime.parse(datetimeStr);
-//            } else if (datetimeStr.contains(" ")) {
-//                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//                ldt = LocalDateTime.parse(datetimeStr, formatter);
-//            }
-//        }
-//        else if (datetimeObj instanceof java.util.Date) {
-//            ldt = ((java.util.Date) datetimeObj).toInstant()
-//                    .atZone(ZoneId.systemDefault())
-//                    .toLocalDateTime();
-//        }
-//
-//        // Set components if conversion succeeded
-//        if (ldt != null) {
-//            // Set DatePicker (requires java.util.Date)
-//            Date date = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
-//            datePicker.setDate(date);
-//            
-//            // Set TimeSpinner (requires java.util.Date)
-//            Time time = Time.valueOf(ldt.toLocalTime());
-//            SpinnerDateModel timeModel = new SpinnerDateModel(
-//                time,
-//                null,  // min
-//                null,  // max
-//                Calendar.HOUR_OF_DAY  // step
-//            );
-//            timeSpinner.setModel(timeModel);
-//        }
-//        
-//    } catch (Exception e) {
-//        System.err.println("Error processing datetime: " + datetimeObj);
-//        e.printStackTrace();
-//        JOptionPane.showMessageDialog(rentalPanel,
-//            "Error processing datetime: " + e.getMessage(),
-//            "Conversion Error", 
-//            JOptionPane.ERROR_MESSAGE);
-//    }
-//}
 
 private void displaySelectedRental() {
     int selectedRow = rentalPanel.getRentalTable().getSelectedRow();
@@ -243,21 +169,6 @@ private void displaySelectedRental() {
                 rentalPanel.getTableModel().getValueAt(selectedRow, 1).toString());
             rentalPanel.getCustomerIdField().setText(
                 rentalPanel.getTableModel().getValueAt(selectedRow, 2).toString());
-            
-//            // Process Rental Datetime
-//            processDateTime(
-//                rentalPanel.getTableModel().getValueAt(selectedRow, 3),
-//                rentalPanel.getRentalDatePicker(),
-//                rentalPanel.getRentalTimeSpinner()
-//            );
-//
-//            // Process Return Datetime
-//            processDateTime(
-//                rentalPanel.getTableModel().getValueAt(selectedRow, 4),
-//                rentalPanel.getReturnDatePicker(),
-//                rentalPanel.getReturnTimeSpinner()
-//            );
-
 
             // Handle Rental Date and Time
             Object rentalDateObj = rentalPanel.getTableModel().getValueAt(selectedRow, 3);
@@ -324,8 +235,6 @@ private void displaySelectedRental() {
     }
 }
 
-
-    
     private void calculateAndDisplayCost() {
     try {
         int carId = Integer.parseInt(rentalPanel.getCarIdField().getText());

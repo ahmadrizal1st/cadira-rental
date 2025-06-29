@@ -36,3 +36,6 @@ CREATE TABLE IF NOT EXISTS rentals (
     FOREIGN KEY (car_id) REFERENCES cars(car_id),
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
 );
+
+INSERT INTO users (username, password) 
+VALUES ('admin', 'admin123');
