@@ -3,10 +3,10 @@ package main.java.com.carrental.controller;
 import main.java.com.carrental.model.Car;
 import main.java.com.carrental.view.CarPanel;
 
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import java.sql.SQLException;
 import java.util.List;
-import javax.swing.JOptionPane;
 
 public class CarController {
     private CarPanel carPanel;
@@ -30,7 +30,7 @@ public class CarController {
             DefaultTableModel model = carPanel.getTableModel();
             model.setRowCount(0); // Clear existing data
             for (Car car : cars) {
-                model.addRow(new Object[]{car.getCarId(), car.getMake(), car.getModel(), car.getYear(), car.getLicensePlate(), car.getDailyRate(), car.isAvailable()});
+                model.addRow(new Object[]{car.getCarId(), car.getMake(), car.getModel(), car.getYear(), car.getLicensePlate(), car.getHourlyRate(), car.isAvailable()});
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(carPanel, "Error loading cars: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
@@ -43,16 +43,16 @@ public class CarController {
             String model = carPanel.getModelField().getText();
             int year = Integer.parseInt(carPanel.getYearField().getText());
             String licensePlate = carPanel.getLicensePlateField().getText();
-            double dailyRate = Double.parseDouble(carPanel.getDailyRateField().getText());
+            double hourlyRate = Double.parseDouble(carPanel.getHourlyRateField().getText());
             boolean available = carPanel.getAvailableCheckBox().isSelected();
 
-            Car car = new Car(0, make, model, year, licensePlate, dailyRate, available);
+            Car car = new Car(0, make, model, year, licensePlate, hourlyRate, available);
             Car.addCar(car);
             JOptionPane.showMessageDialog(carPanel, "Car added successfully!");
             carPanel.clearForm();
             loadCars();
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(carPanel, "Invalid input. Please enter valid numbers for Year and Daily Rate.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(carPanel, "Invalid input. Please enter valid numbers for Year and Hourly Rate.", "Input Error", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(carPanel, "Error adding car: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -67,16 +67,16 @@ public class CarController {
                 String model = carPanel.getModelField().getText();
                 int year = Integer.parseInt(carPanel.getYearField().getText());
                 String licensePlate = carPanel.getLicensePlateField().getText();
-                double dailyRate = Double.parseDouble(carPanel.getDailyRateField().getText());
+                double hourlyRate = Double.parseDouble(carPanel.getHourlyRateField().getText());
                 boolean available = carPanel.getAvailableCheckBox().isSelected();
 
-                Car car = new Car(carId, make, model, year, licensePlate, dailyRate, available);
+                Car car = new Car(carId, make, model, year, licensePlate, hourlyRate, available);
                 Car.updateCar(car);
                 JOptionPane.showMessageDialog(carPanel, "Car updated successfully!");
                 carPanel.clearForm();
                 loadCars();
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(carPanel, "Invalid input. Please enter valid numbers for Year and Daily Rate.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(carPanel, "Invalid input. Please enter valid numbers for Year and Hourly Rate.", "Input Error", JOptionPane.ERROR_MESSAGE);
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(carPanel, "Error updating car: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -112,7 +112,7 @@ public class CarController {
             carPanel.getModelField().setText(carPanel.getTableModel().getValueAt(selectedRow, 2).toString());
             carPanel.getYearField().setText(carPanel.getTableModel().getValueAt(selectedRow, 3).toString());
             carPanel.getLicensePlateField().setText(carPanel.getTableModel().getValueAt(selectedRow, 4).toString());
-            carPanel.getDailyRateField().setText(carPanel.getTableModel().getValueAt(selectedRow, 5).toString());
+            carPanel.getHourlyRateField().setText(carPanel.getTableModel().getValueAt(selectedRow, 5).toString());
             carPanel.getAvailableCheckBox().setSelected((boolean) carPanel.getTableModel().getValueAt(selectedRow, 6));
         }
     }

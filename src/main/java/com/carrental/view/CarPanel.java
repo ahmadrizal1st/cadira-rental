@@ -8,14 +8,14 @@ public class CarPanel extends JPanel {
     private JTable carTable;
     private DefaultTableModel tableModel;
     private JButton addButton, updateButton, deleteButton;
-    private JTextField makeField, modelField, yearField, licensePlateField, dailyRateField;
+    private JTextField makeField, modelField, yearField, licensePlateField, hourlyRateField;
     private JCheckBox availableCheckBox;
 
     public CarPanel() {
         setLayout(new BorderLayout());
 
         // Table setup
-        tableModel = new DefaultTableModel(new Object[]{"ID", "Make", "Model", "Year", "License Plate", "Daily Rate", "Available"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"ID", "Make", "Model", "Year", "License Plate", "Hourly Rate", "Available"}, 0);
         carTable = new JTable(tableModel);
         add(new JScrollPane(carTable), BorderLayout.CENTER);
 
@@ -39,9 +39,9 @@ public class CarPanel extends JPanel {
         licensePlateField = new JTextField();
         formPanel.add(licensePlateField);
 
-        formPanel.add(new JLabel("Daily Rate:"));
-        dailyRateField = new JTextField();
-        formPanel.add(dailyRateField);
+        formPanel.add(new JLabel("Hourly Rate:"));
+        hourlyRateField = new JTextField();
+        formPanel.add(hourlyRateField);
 
         formPanel.add(new JLabel("Available:"));
         availableCheckBox = new JCheckBox();
@@ -95,8 +95,8 @@ public class CarPanel extends JPanel {
         return licensePlateField;
     }
 
-    public JTextField getDailyRateField() {
-        return dailyRateField;
+    public JTextField getHourlyRateField() {
+        return hourlyRateField;
     }
 
     public JCheckBox getAvailableCheckBox() {
@@ -112,7 +112,7 @@ public class CarPanel extends JPanel {
         modelField.setText("");
         yearField.setText("");
         licensePlateField.setText("");
-        dailyRateField.setText("");
+        hourlyRateField.setText("");
         availableCheckBox.setSelected(false);
     }
 }

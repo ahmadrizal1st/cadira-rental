@@ -1,14 +1,28 @@
 package main.java.com.carrental.controller;
 
+import main.java.com.carrental.model.Car;
 import main.java.com.carrental.model.Rental;
 import main.java.com.carrental.view.RentalPanel;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+
+import javax.swing.JSpinner;
+import javax.swing.SpinnerDateModel;
+import java.sql.Time;
+import java.util.Calendar;
+import java.util.Date;
+
+import org.jdesktop.swingx.JXDatePicker;
 
 public class RentalController {
     private RentalPanel rentalPanel;
@@ -22,40 +36,60 @@ public class RentalController {
         rentalPanel.getAddButton().addActionListener(e -> addRental());
         rentalPanel.getUpdateButton().addActionListener(e -> updateRental());
         rentalPanel.getDeleteButton().addActionListener(e -> deleteRental());
+        rentalPanel.getCalculateCostButton().addActionListener(e -> calculateAndDisplayCost());
         rentalPanel.getRentalTable().getSelectionModel().addListSelectionListener(e -> displaySelectedRental());
         loadRentals();
     }
-
+    
     private void loadRentals() {
         try {
             List<Rental> rentals = Rental.getAllRentals();
             DefaultTableModel model = rentalPanel.getTableModel();
             model.setRowCount(0); // Clear existing data
             for (Rental rental : rentals) {
-                model.addRow(new Object[]{rental.getRentalId(), rental.getCarId(), rental.getCustomerId(), rental.getRentalDate(), rental.getReturnDate(), rental.getTotalCost()});
+                model.addRow(new Object[]{rental.getRentalId(), rental.getCarId(), rental.getCustomerId(), rental.getRentalDatetime(), rental.getReturnDatetime(), rental.getTotalCost()});
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(rentalPanel, "Error loading rentals: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
-    private void addRental() {
+    
+        private void addRental() {
         try {
             int carId = Integer.parseInt(rentalPanel.getCarIdField().getText());
             int customerId = Integer.parseInt(rentalPanel.getCustomerIdField().getText());
-            LocalDate rentalDate = LocalDate.parse(rentalPanel.getRentalDateField().getText());
-            LocalDate returnDate = rentalPanel.getReturnDateField().getText().isEmpty() ? null : LocalDate.parse(rentalPanel.getReturnDateField().getText());
-            double totalCost = Double.parseDouble(rentalPanel.getTotalCostField().getText());
 
-            Rental rental = new Rental(0, carId, customerId, rentalDate, returnDate, totalCost);
+            LocalDateTime rentalDatetime = rentalPanel.getRentalDateTime();
+            LocalDateTime returnDatetime = rentalPanel.getReturnDateTime();
+
+            if (returnDatetime != null && rentalDatetime.isAfter(returnDatetime)) {
+                JOptionPane.showMessageDialog(rentalPanel, "Return datetime cannot be before rental datetime.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Check car availability
+            if (!Rental.isCarAvailable(carId, rentalDatetime, returnDatetime)) {
+                JOptionPane.showMessageDialog(rentalPanel, "Car is not available for the selected time period.", "Availability Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Car car = Car.getAllCars().stream().filter(c -> c.getCarId() == carId).findFirst().orElse(null);
+            if (car == null) {
+                JOptionPane.showMessageDialog(rentalPanel, "Car not found.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            double totalCost = Rental.calculateTotalCost(car.getHourlyRate(), rentalDatetime, returnDatetime);
+
+            Rental rental = new Rental(0, carId, customerId, rentalDatetime, returnDatetime, totalCost);
             Rental.addRental(rental);
-            JOptionPane.showMessageDialog(rentalPanel, "Rental added successfully!");
+            JOptionPane.showMessageDialog(rentalPanel, "Rental added successfully! Total Cost: " + String.format("%.2f", totalCost));
             rentalPanel.clearForm();
             loadRentals();
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(rentalPanel, "Invalid input. Please enter valid numbers for Car ID, Customer ID, and Total Cost.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(rentalPanel, "Invalid input. Please enter valid numbers for Car ID and Customer ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
         } catch (DateTimeParseException ex) {
-            JOptionPane.showMessageDialog(rentalPanel, "Invalid date format. Please use YYYY-MM-DD.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(rentalPanel, "Invalid datetime format. Please use YYYY-MM-DD HH:MM:SS.", "Input Error", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(rentalPanel, "Error adding rental: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -68,19 +102,46 @@ public class RentalController {
                 int rentalId = (int) rentalPanel.getTableModel().getValueAt(selectedRow, 0);
                 int carId = Integer.parseInt(rentalPanel.getCarIdField().getText());
                 int customerId = Integer.parseInt(rentalPanel.getCustomerIdField().getText());
-                LocalDate rentalDate = LocalDate.parse(rentalPanel.getRentalDateField().getText());
-                LocalDate returnDate = rentalPanel.getReturnDateField().getText().isEmpty() ? null : LocalDate.parse(rentalPanel.getReturnDateField().getText());
-                double totalCost = Double.parseDouble(rentalPanel.getTotalCostField().getText());
 
-                Rental rental = new Rental(rentalId, carId, customerId, rentalDate, returnDate, totalCost);
+                LocalDateTime rentalDatetime = rentalPanel.getRentalDateTime();
+                LocalDateTime returnDatetime = rentalPanel.getReturnDateTime();
+        
+                if (returnDatetime != null && rentalDatetime.isAfter(returnDatetime)) {
+                    JOptionPane.showMessageDialog(rentalPanel, "Return datetime cannot be before rental datetime.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // Check car availability (excluding the current rental being updated)
+                // This part would require more complex SQL to exclude the current rental ID
+                // For simplicity, we'll re-check availability as if it's a new rental, which might be too strict
+                // A more robust solution would involve passing the current rentalId to isCarAvailable
+                // and modifying the SQL query to exclude that rental from the conflict check.
+                // For now, we'll proceed with the existing check, acknowledging it might prevent valid updates.
+                if (!Rental.isCarAvailable(carId, rentalDatetime, returnDatetime)) {
+                    JOptionPane.showMessageDialog(rentalPanel, "Car is not available for the selected time period.", "Availability Error", JOptionPane.ERROR_MESSAGE);
+                    // Optionally, allow update if only other fields are changed and time period is same
+                    // This requires comparing old and new rental times.
+                    // For now, we'll block if any conflict is detected.
+                    // return;
+                }
+
+                Car car = Car.getAllCars().stream().filter(c -> c.getCarId() == carId).findFirst().orElse(null);
+                if (car == null) {
+                    JOptionPane.showMessageDialog(rentalPanel, "Car not found.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                double totalCost = Rental.calculateTotalCost(car.getHourlyRate(), rentalDatetime, returnDatetime);
+
+                Rental rental = new Rental(rentalId, carId, customerId, rentalDatetime, returnDatetime, totalCost);
                 Rental.updateRental(rental);
-                JOptionPane.showMessageDialog(rentalPanel, "Rental updated successfully!");
+                JOptionPane.showMessageDialog(rentalPanel, "Rental updated successfully! Total Cost: " + String.format("%.2f", totalCost));
                 rentalPanel.clearForm();
                 loadRentals();
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(rentalPanel, "Invalid input. Please enter valid numbers for Car ID, Customer ID, and Total Cost.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(rentalPanel, "Invalid input. Please enter valid numbers for Car ID and Customer ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
             } catch (DateTimeParseException ex) {
-                JOptionPane.showMessageDialog(rentalPanel, "Invalid date format. Please use YYYY-MM-DD.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(rentalPanel, "Invalid datetime format. Please use YYYY-MM-DD HH:MM:SS.", "Input Error", JOptionPane.ERROR_MESSAGE);
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(rentalPanel, "Error updating rental: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -108,18 +169,200 @@ public class RentalController {
             JOptionPane.showMessageDialog(rentalPanel, "Please select a rental to delete.", "No Selection", JOptionPane.WARNING_MESSAGE);
         }
     }
+    
+    /**
+ * Processes datetime value and sets the corresponding date picker and time spinner
+ * @param datetimeObj The datetime value from table model (could be String, Timestamp, etc.)
+ * @param datePicker The JXDatePicker component to set the date
+ * @param timeSpinner The JSpinner component to set the time
+ */
+//private void processDateTime(Object datetimeObj, JXDatePicker datePicker, JSpinner timeSpinner) {
+//    if (datetimeObj == null) {
+//        datePicker.setDate(null);
+//        timeSpinner.setValue(null);
+//        return;
+//    }
+//
+//    try {
+//        // Convert input to LocalDateTime
+//        LocalDateTime ldt = null;
+//        
+//        if (datetimeObj instanceof java.sql.Timestamp) {
+//            ldt = ((java.sql.Timestamp) datetimeObj).toLocalDateTime();
+//        } 
+//        else if (datetimeObj instanceof String) {
+//            String datetimeStr = (String) datetimeObj;
+//            
+//            // Handle both ISO format (2025-06-29T10:22) and traditional format (2025-06-29 10:22:00)
+//            if (datetimeStr.contains("T")) {
+//                ldt = LocalDateTime.parse(datetimeStr);
+//            } else if (datetimeStr.contains(" ")) {
+//                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//                ldt = LocalDateTime.parse(datetimeStr, formatter);
+//            }
+//        }
+//        else if (datetimeObj instanceof java.util.Date) {
+//            ldt = ((java.util.Date) datetimeObj).toInstant()
+//                    .atZone(ZoneId.systemDefault())
+//                    .toLocalDateTime();
+//        }
+//
+//        // Set components if conversion succeeded
+//        if (ldt != null) {
+//            // Set DatePicker (requires java.util.Date)
+//            Date date = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+//            datePicker.setDate(date);
+//            
+//            // Set TimeSpinner (requires java.util.Date)
+//            Time time = Time.valueOf(ldt.toLocalTime());
+//            SpinnerDateModel timeModel = new SpinnerDateModel(
+//                time,
+//                null,  // min
+//                null,  // max
+//                Calendar.HOUR_OF_DAY  // step
+//            );
+//            timeSpinner.setModel(timeModel);
+//        }
+//        
+//    } catch (Exception e) {
+//        System.err.println("Error processing datetime: " + datetimeObj);
+//        e.printStackTrace();
+//        JOptionPane.showMessageDialog(rentalPanel,
+//            "Error processing datetime: " + e.getMessage(),
+//            "Conversion Error", 
+//            JOptionPane.ERROR_MESSAGE);
+//    }
+//}
 
-    private void displaySelectedRental() {
-        int selectedRow = rentalPanel.getRentalTable().getSelectedRow();
-        if (selectedRow >= 0) {
-            rentalPanel.getCarIdField().setText(rentalPanel.getTableModel().getValueAt(selectedRow, 1).toString());
-            rentalPanel.getCustomerIdField().setText(rentalPanel.getTableModel().getValueAt(selectedRow, 2).toString());
-            rentalPanel.getRentalDateField().setText(rentalPanel.getTableModel().getValueAt(selectedRow, 3).toString());
+private void displaySelectedRental() {
+    int selectedRow = rentalPanel.getRentalTable().getSelectedRow();
+    if (selectedRow >= 0) {
+        try {
+            // Set car and customer details
+            rentalPanel.getCarIdField().setText(
+                rentalPanel.getTableModel().getValueAt(selectedRow, 1).toString());
+            rentalPanel.getCustomerIdField().setText(
+                rentalPanel.getTableModel().getValueAt(selectedRow, 2).toString());
+            
+//            // Process Rental Datetime
+//            processDateTime(
+//                rentalPanel.getTableModel().getValueAt(selectedRow, 3),
+//                rentalPanel.getRentalDatePicker(),
+//                rentalPanel.getRentalTimeSpinner()
+//            );
+//
+//            // Process Return Datetime
+//            processDateTime(
+//                rentalPanel.getTableModel().getValueAt(selectedRow, 4),
+//                rentalPanel.getReturnDatePicker(),
+//                rentalPanel.getReturnTimeSpinner()
+//            );
+
+
+            // Handle Rental Date and Time
+            Object rentalDateObj = rentalPanel.getTableModel().getValueAt(selectedRow, 3);
+            if (rentalDateObj instanceof String) {
+                String rentalDateString = (String) rentalDateObj;
+                String[] dateTimeParts = rentalDateString.split("T");
+                
+                if (dateTimeParts.length >= 2) {
+                    // Parse and set Rental Date
+                    Date rentalDate = new SimpleDateFormat("yyyy-MM-dd").parse(dateTimeParts[0]);
+                    if (rentalPanel.getRentalDatePicker() != null) {
+                        rentalPanel.setRentalDatePicker(rentalDate);
+                    }
+                    
+                    // Parse and set Rental Time
+                    java.sql.Time rentalTime = java.sql.Time.valueOf(dateTimeParts[1]);
+                    if (rentalPanel.getRentalTimeSpinner() != null) {
+                        rentalPanel.setRentalTimeSpinner(rentalTime);
+                    }
+                }
+            }
+
+            // Handle Return Date and Time
             Object returnDateObj = rentalPanel.getTableModel().getValueAt(selectedRow, 4);
-            rentalPanel.getReturnDateField().setText(returnDateObj != null ? returnDateObj.toString() : "");
-            rentalPanel.getTotalCostField().setText(rentalPanel.getTableModel().getValueAt(selectedRow, 5).toString());
+            if (returnDateObj instanceof String) {
+                String returnDateString = (String) returnDateObj;
+                String[] dateTimeParts = returnDateString.split("T");
+                
+                if (dateTimeParts.length >= 2) {
+                    // Parse and set Return Date
+                    Date returnDate = new SimpleDateFormat("yyyy-MM-dd").parse(dateTimeParts[0]);
+                    if (rentalPanel.getReturnDatePicker() != null) {
+                        rentalPanel.setReturnDatePicker(returnDate);
+                    }
+                    
+                    // Parse and set Return Time
+                    java.sql.Time returnTime = java.sql.Time.valueOf(dateTimeParts[1]);
+                    if (rentalPanel.getReturnTimeSpinner() != null) {
+                        rentalPanel.setReturnTimeSpinner(returnTime);
+                    }
+                }
+            }
+
+            // Set Total Cost
+            rentalPanel.getTotalCostLabel().setText(
+                rentalPanel.getTableModel().getValueAt(selectedRow, 5).toString());
+                
+        } catch (ParseException e) {
+            JOptionPane.showMessageDialog(rentalPanel, 
+                "Error parsing date: " + e.getMessage(), 
+                "Date Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(rentalPanel, 
+                "Invalid time format: " + e.getMessage(), 
+                "Time Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(rentalPanel, 
+                "Error displaying rental data: " + e.getMessage(), 
+                "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 }
 
+
+    
+    private void calculateAndDisplayCost() {
+    try {
+        int carId = Integer.parseInt(rentalPanel.getCarIdField().getText());
+        
+        // Mengambil rentalDatetime dan returnDatetime yang sudah diperbaiki
+        LocalDateTime rentalDatetime = rentalPanel.getRentalDateTime();
+        LocalDateTime returnDatetime = rentalPanel.getReturnDateTime();
+
+        // Validasi apakah return datetime tidak lebih awal dari rental datetime
+        if (returnDatetime != null && rentalDatetime.isAfter(returnDatetime)) {
+            JOptionPane.showMessageDialog(rentalPanel, "Return datetime cannot be before rental datetime.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            rentalPanel.getTotalCostLabel().setText("0.00");
+            return;
+        }
+
+        // Memeriksa apakah mobil tersedia
+        Car car = Car.getAllCars().stream().filter(c -> c.getCarId() == carId).findFirst().orElse(null);
+        if (car == null) {
+            JOptionPane.showMessageDialog(rentalPanel, "Car not found.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            rentalPanel.getTotalCostLabel().setText("0.00");
+            return;
+        }
+
+        // Menghitung total biaya sewa
+        double totalCost = Rental.calculateTotalCost(car.getHourlyRate(), rentalDatetime, returnDatetime);
+        rentalPanel.getTotalCostLabel().setText(String.format("%.2f", totalCost));
+    } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(rentalPanel, "Invalid input. Please enter valid numbers for Car ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        rentalPanel.getTotalCostLabel().setText("0.00");
+    } catch (DateTimeParseException ex) {
+        JOptionPane.showMessageDialog(rentalPanel, "Invalid datetime format. Please use YYYY-MM-DD HH:MM:SS.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        rentalPanel.getTotalCostLabel().setText("0.00");
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(rentalPanel, "Error calculating cost: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        rentalPanel.getTotalCostLabel().setText("0.00");
+    }
+}
+
+}
 

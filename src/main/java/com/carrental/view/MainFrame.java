@@ -15,6 +15,7 @@ public class MainFrame extends JFrame {
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // Center the window
+        setVisible(false); // Set to false initially
 
         tabbedPane = new JTabbedPane();
 
@@ -41,11 +42,7 @@ public class MainFrame extends JFrame {
         return rentalPanel;
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new MainFrame().setVisible(true);
-        });
-    }
+    // Removed main method as App.java will handle visibility after login
 }
 
 

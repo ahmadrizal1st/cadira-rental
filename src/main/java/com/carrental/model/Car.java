@@ -10,16 +10,16 @@ public class Car {
     private String model;
     private int year;
     private String licensePlate;
-    private double dailyRate;
+    private double hourlyRate;
     private boolean available;
 
-    public Car(int carId, String make, String model, int year, String licensePlate, double dailyRate, boolean available) {
+    public Car(int carId, String make, String model, int year, String licensePlate, double hourlyRate, boolean available) {
         this.carId = carId;
         this.make = make;
         this.model = model;
         this.year = year;
         this.licensePlate = licensePlate;
-        this.dailyRate = dailyRate;
+        this.hourlyRate = hourlyRate;
         this.available = available;
     }
 
@@ -29,7 +29,7 @@ public class Car {
     public String getModel() { return model; }
     public int getYear() { return year; }
     public String getLicensePlate() { return licensePlate; }
-    public double getDailyRate() { return dailyRate; }
+    public double getHourlyRate() { return hourlyRate; }
     public boolean isAvailable() { return available; }
 
     // Setters
@@ -37,19 +37,19 @@ public class Car {
     public void setModel(String model) { this.model = model; }
     public void setYear(int year) { this.year = year; }
     public void setLicensePlate(String licensePlate) { this.licensePlate = licensePlate; }
-    public void setDailyRate(double dailyRate) { this.dailyRate = dailyRate; }
+    public void setHourlyRate(double hourlyRate) { this.hourlyRate = hourlyRate; }
     public void setAvailable(boolean available) { this.available = available; }
 
     // CRUD operations
     public static void addCar(Car car) throws SQLException {
-        String sql = "INSERT INTO cars (make, model, year, license_plate, daily_rate, available) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO cars (make, model, year, license_plate, hourly_rate, available) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, car.getMake());
             stmt.setString(2, car.getModel());
             stmt.setInt(3, car.getYear());
             stmt.setString(4, car.getLicensePlate());
-            stmt.setDouble(5, car.getDailyRate());
+            stmt.setDouble(5, car.getHourlyRate());
             stmt.setBoolean(6, car.isAvailable());
             stmt.executeUpdate();
 
@@ -74,7 +74,7 @@ public class Car {
                     rs.getString("model"),
                     rs.getInt("year"),
                     rs.getString("license_plate"),
-                    rs.getDouble("daily_rate"),
+                    rs.getDouble("hourly_rate"),
                     rs.getBoolean("available")
                 ));
             }
@@ -83,14 +83,14 @@ public class Car {
     }
 
     public static void updateCar(Car car) throws SQLException {
-        String sql = "UPDATE cars SET make = ?, model = ?, year = ?, license_plate = ?, daily_rate = ?, available = ? WHERE car_id = ?";
+        String sql = "UPDATE cars SET make = ?, model = ?, year = ?, license_plate = ?, hourly_rate = ?, available = ? WHERE car_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, car.getMake());
             stmt.setString(2, car.getModel());
             stmt.setInt(3, car.getYear());
             stmt.setString(4, car.getLicensePlate());
-            stmt.setDouble(5, car.getDailyRate());
+            stmt.setDouble(5, car.getHourlyRate());
             stmt.setBoolean(6, car.isAvailable());
             stmt.setInt(7, car.getCarId());
             stmt.executeUpdate();
