@@ -1,113 +1,103 @@
-# Car Rental Management System
+# Car Rental Management System - CADIRA RENTAL
 
-This is a simple Car Rental Management System developed in Java using Swing for the GUI, MySQL for the database, and following the Model-View-Controller (MVC) architectural pattern.
+**Experience the Future of Driving Today**
 
-## Features
-- **Car Management**: Add, update, delete, and view car details.
-- **Customer Management**: Add, update, delete, and view customer details.
-- **Rental Management**: Create, update, delete, and view car rental records.
+![Cover Image](assets/cover.png)
 
-## Technologies Used
-- Java (JDK 8 or higher)
-- Swing (for GUI)
-- MySQL Database
-- JDBC (Java Database Connectivity)
-- MVC Architecture
+## Project Overview
 
-## Setup Instructions
+Car Rental Management System is a simple desktop application developed using Java. This system simplifies the management of car rentals, customers, and vehicle data, complete with validation to prevent double-booking of rented cars.
 
-### 1. Database Setup
+## Main Features
 
-1.  Ensure you have MySQL installed and running.
-2.  Open your MySQL client (e.g., MySQL Workbench, command line).
-3.  Execute the SQL script located at `car_rental_program/db/car_rental_db.sql` to create the database and tables:
+- **Login**
+  - User authentication.
 
-    ```sql
-    CREATE DATABASE IF NOT EXISTS car_rental_db;
-    USE car_rental_db;
+- **Rental Management (Transactions)**
+  - Add, update, delete, and view rental transactions.
+  - Validation to prevent renting a car that is already rented.
 
-    CREATE TABLE IF NOT EXISTS cars (
-        car_id INT AUTO_INCREMENT PRIMARY KEY,
-        make VARCHAR(50) NOT NULL,
-        model VARCHAR(50) NOT NULL,
-        year INT NOT NULL,
-        license_plate VARCHAR(20) UNIQUE NOT NULL,
-        daily_rate DECIMAL(10, 2) NOT NULL,
-        available BOOLEAN NOT NULL DEFAULT TRUE
-    );
+- **Car Management**
+  - Add, update, delete, and view car data.
 
-    CREATE TABLE IF NOT EXISTS customers (
-        customer_id INT AUTO_INCREMENT PRIMARY KEY,
-        first_name VARCHAR(50) NOT NULL,
-        last_name VARCHAR(50) NOT NULL,
-        email VARCHAR(100) UNIQUE NOT NULL,
-        phone_number VARCHAR(20)
-    );
+- **Customer Management**
+  - Add, update, delete, and view customer data.
 
-    CREATE TABLE IF NOT EXISTS rentals (
-        rental_id INT AUTO_INCREMENT PRIMARY KEY,
-        car_id INT NOT NULL,
-        customer_id INT NOT NULL,
-        rental_date DATE NOT NULL,
-        return_date DATE,
-        total_cost DECIMAL(10, 2),
-        FOREIGN KEY (car_id) REFERENCES cars(car_id),
-        FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
-    );
-    ```
+## Technology Stack
 
-4.  Update the `DatabaseConnection.java` file (`car_rental_program/src/main/java/com/carrental/model/DatabaseConnection.java`) with your MySQL username and password:
+- **Backend & Logic**
+  - Java: Main programming language.
+  - JDBC Driver MySQL: Connector between Java application and MySQL database.
 
-    ```java
-    private static final String USER = "your_mysql_username"; // e.g., "root"
-    private static final String PASSWORD = "your_mysql_password"; // e.g., "password"
-    ```
+- **Database**
+  - MySQL: Relational database management system.
 
-### 2. Project Setup (NetBeans IDE)
+- **GUI / Frontend**
+  - Swing: Standard Java library for building GUIs.
+  - SwingX 1.6.0: Swing extension providing advanced components like JXDatePicker.
+  - JFrame & JPanel: Core components for window and panel structures.
 
-1.  Open NetBeans IDE.
-2.  Go to `File` -> `Open Project...`.
-3.  Navigate to the `car_rental_program` directory and click `Open Project`.
-4.  **Add MySQL JDBC Driver**: 
-    - Right-click on `Libraries` in the `Projects` window.
-    - Select `Add JAR/Folder...`.
-    - Navigate to where you downloaded the MySQL Connector/J (JDBC driver) JAR file (e.g., `mysql-connector-java-x.x.x.jar`). If you don't have it, you can download it from the official MySQL website.
-    - Select the JAR file and click `Open`.
-
-### 3. Build and Run
-
-1.  Clean and Build the project: `Run` -> `Clean and Build Project`.
-2.  Run the application: `Run` -> `Run Project` or press `F6`.
+- **IDE**
+  - NetBeans IDE: Integrated Development Environment for coding, debugging, and GUI design.
 
 ## Project Structure
 
 ```
-car_rental_program/
+CAR_RENTAL/
+├── assets/                    # Assets folder (images, etc)
+├── build/                     # Build output
+├── db/                        # Database
+├── lib/                       # External libraries (JDBC driver, SwingX, etc)
+├── nbproject/                 # NetBeans project configuration
 ├── src/
 │   └── main/
 │       └── java/
 │           └── com/
 │               └── carrental/
-│                   ├── controller/
+│                   ├── controller/         # MVC: Controller layer
 │                   │   ├── CarController.java
 │                   │   ├── CustomerController.java
+│                   │   ├── LoginController.java
 │                   │   └── RentalController.java
-│                   ├── model/
+│                   ├── model/              # MVC: Model layer
 │                   │   ├── Car.java
 │                   │   ├── Customer.java
 │                   │   ├── DatabaseConnection.java
-│                   │   └── Rental.java
-│                   └── view/
+│                   │   ├── Rental.java
+│                   │   └── User.java
+│                   └── view/               # MVC: View layer
 │                       ├── CarPanel.java
 │                       ├── CustomerPanel.java
+│                       ├── LoginFrame.java
 │                       ├── MainFrame.java
-│                       └── RentalPanel.java
-│                   └── App.java
-├── lib/ (for JDBC driver)
-├── db/
-│   └── car_rental_db.sql
-└── README.md
+│                       ├── RentalPanel.java
+│                       ├── Theme.java
+│                       └── App.java        # Application entry point
+├── test/                      # Unit tests
+├── .gitignore                 # Git ignore configuration
+├── build.xml                  # Build configuration
+└── manifest.mf                # Manifest configuration
 ```
 
+## Architecture
 
+The system follows the **Model-View-Controller (MVC)** architecture to separate logic, view, and data.
 
+## Graphical User Interface (GUI)
+
+- Login
+- Car Management
+- Customer Management
+- Rental Management
+
+## Contributors
+
+- [Dinul Hayat (23105826)](https://github.com/DinulHyt)
+- [Nasya Kemal Giffari (231057018)](https://github.com/KemalNasya)
+- [Ahmad Rizal (231057014)](https://github.com/ahmadrizal1st)
+
+---
+
+Thank you for using this application.
+
+**CADIRA RENTAL**
