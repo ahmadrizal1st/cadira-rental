@@ -22,11 +22,8 @@
 Open terminal or CMD, then run the following command:
 
 ```bash
-git clone https://github.com/username/cadira-rental.git
+git clone https://github.com/ahmadrizal1st/cadira-rental.git
 ```
-
-> **Note:** Replace `username` and the repository link according to your project's GitHub repository.
-
 ---
 
 ### 2. Import Project to NetBeans
@@ -49,7 +46,7 @@ Ensure MySQL is running.
 Open a tool like **phpMyAdmin**, **MySQL Workbench**, or terminal, then execute:
 
 ```sql
-CREATE DATABASE car_rental;
+CREATE DATABASE car_rental_db;
 ```
 
 #### c. Import Table Structure
