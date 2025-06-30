@@ -1,58 +1,105 @@
-
 package main.java.com.carrental.view;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 
+/**
+ * The Theme class provides a centralized location for all UI styling and theming
+ * configurations used throughout the car rental application. It includes color
+ * definitions, typography settings, border styles, and component dimensions.
+ */
 public class Theme {
-    // Color Palette
+    // ========== COLOR PALETTE ==========
+    /** Primary brand color (red) */
     public static final Color PRIMARY_COLOR = new Color(211, 16, 31);   // #d3101f
+    
+    /** Secondary color (white) */
     public static final Color SECONDARY_COLOR = new Color(255, 255, 255); // #ffffff
+    
+    /** Tertiary color (dark gray) */
     public static final Color TERTIARY_COLOR = new Color(25, 20, 20);    // #191414
+    
+    /** Support color (light gray) */
     public static final Color SUPPORT_COLOR = new Color(217, 217, 217);  // #d9d9d9
     
-    // Custom Colors
+    // ========== CUSTOM COLORS ==========
+    /** Light red color used for selections */
     public static final Color LIGHT_RED = new Color(255, 230, 230);
+    
+    /** Dark gray color for disabled states */
     public static final Color DARK_GRAY = new Color(60, 60, 60);
+    
+    /** Color for disabled components */
     public static final Color DISABLED_COLOR = new Color(150, 150, 150);
     
-    // Typography
+    // ========== TYPOGRAPHY ==========
     private static final String FONT_FAMILY = "Segoe UI";
+    
+    /** Font for main titles */
     public static final Font TITLE_FONT = new Font(FONT_FAMILY, Font.BOLD, 24);
+    
+    /** Font for subtitles */
     public static final Font SUBTITLE_FONT = new Font(FONT_FAMILY, Font.BOLD, 18);
+    
+    /** Font for regular body text */
     public static final Font BODY_FONT = new Font(FONT_FAMILY, Font.PLAIN, 14);
+    
+    /** Font for buttons */
     public static final Font BUTTON_FONT = new Font(FONT_FAMILY, Font.BOLD, 14);
+    
+    /** Font for menu items */
     public static final Font MENU_FONT = new Font(FONT_FAMILY, Font.PLAIN, 14);
+    
+    /** Font for menu headers */
     public static final Font MENU_HEADER_FONT = new Font(FONT_FAMILY, Font.BOLD, 14);
     
-    // Borders
+    // ========== BORDERS ==========
+    /** Rounded border with primary color */
     public static final Border ROUNDED_BORDER = new RoundBorder(PRIMARY_COLOR, 12, 2);
+    
+    /** Border for input fields */
     public static final Border INPUT_BORDER = new CompoundBorder(
             new RoundBorder(SUPPORT_COLOR, 8, 1),
             new EmptyBorder(5, 10, 5, 10)
     );
+    
+    /** Border for panels */
     public static final Border PANEL_BORDER = new CompoundBorder(
             new EmptyBorder(10, 10, 10, 10),
             new MatteBorder(1, 0, 0, 0, SUPPORT_COLOR)
     );
+    
+    /** Border for toolbars */
     public static final Border TOOLBAR_BORDER = new CompoundBorder(
             new MatteBorder(0, 0, 1, 0, SUPPORT_COLOR),
             new EmptyBorder(5, 5, 5, 5)
     );
+    
+    /** Border for internal frames */
     public static final Border INTERNAL_FRAME_BORDER = new CompoundBorder(
             new LineBorder(SUPPORT_COLOR, 1),
             new EmptyBorder(5, 5, 5, 5)
     );
     
-    // Dimensions
+    // ========== DIMENSIONS ==========
+    /** Default size for input fields */
     public static final Dimension DEFAULT_FIELD_SIZE = new Dimension(200, 30);
+    
+    /** Default size for buttons */
     public static final Dimension DEFAULT_BUTTON_SIZE = new Dimension(100, 30);
+    
+    /** Default size for toolbar buttons */
     public static final Dimension DEFAULT_TOOLBAR_BUTTON_SIZE = new Dimension(40, 40);
     
-    // Applies theme to all components
+    /**
+     * Applies the custom theme to all Swing components in the application.
+     * This method configures the look and feel and sets UI defaults for various components.
+     */
     public static void applyTheme() {
         try {
+            // Set cross-platform look and feel for consistency
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
             
             // ===== Swing Containers =====
@@ -231,12 +278,22 @@ public class Theme {
         }
     }
     
-    // Custom Round Border
+    /**
+     * Custom border implementation that creates rounded rectangles.
+     * This is used for buttons, input fields, and other components that need rounded corners.
+     */
     private static class RoundBorder extends AbstractBorder {
         private final Color color;
         private final int radius;
         private final int thickness;
         
+        /**
+         * Creates a new RoundBorder with specified parameters.
+         * 
+         * @param color The border color
+         * @param radius The corner radius
+         * @param thickness The border thickness
+         */
         public RoundBorder(Color color, int radius, int thickness) {
             this.color = color;
             this.radius = radius;
@@ -266,7 +323,10 @@ public class Theme {
         }
     }
     
-    // Custom Radio Button Icon
+    /**
+     * Custom icon implementation for radio buttons.
+     * This provides a consistent look for radio buttons throughout the application.
+     */
     private static class RadioButtonIcon implements Icon {
         private static final int SIZE = 14;
         
@@ -298,7 +358,10 @@ public class Theme {
         public int getIconHeight() { return SIZE; }
     }
     
-    // Custom CheckBox Menu Item Icon
+    /**
+     * Custom icon implementation for checkbox menu items.
+     * This provides a consistent look for checkbox items in menus.
+     */
     private static class CheckBoxMenuItemIcon implements Icon {
         private static final int SIZE = 14;
         
@@ -330,7 +393,10 @@ public class Theme {
         public int getIconHeight() { return SIZE; }
     }
     
-    // Custom RadioButton Menu Item Icon
+    /**
+     * Custom icon implementation for radio button menu items.
+     * This provides a consistent look for radio button items in menus.
+     */
     private static class RadioButtonMenuItemIcon implements Icon {
         private static final int SIZE = 14;
         
