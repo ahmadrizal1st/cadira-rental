@@ -65,18 +65,19 @@ CAR_RENTAL/
 │                   │   ├── DatabaseConnection.java
 │                   │   ├── Rental.java
 │                   │   └── User.java
-│                   └── view/               # MVC: View layer
-│                       ├── CarPanel.java
-│                       ├── CustomerPanel.java
-│                       ├── LoginFrame.java
-│                       ├── MainFrame.java
-│                       ├── RentalPanel.java
-│                       ├── Theme.java
-│                       └── App.java        # Application entry point
+│                   ├── view/               # MVC: View layer
+│                   │   ├── CarPanel.java
+│                   │   ├── CustomerPanel.java
+│                   │   ├── LoginFrame.java
+│                   │   ├── MainFrame.java
+│                   │   ├── RentalPanel.java
+│                   │   ├── Theme.java
+│                   └── App.java            # Application entry point
 ├── test/                      # Unit tests
 ├── .gitignore                 # Git ignore configuration
 ├── build.xml                  # Build configuration
-└── manifest.mf                # Manifest configuration
+├── manifest.mf                # Manifest configuration
+└── INSTALL.md                 # Installation instructions
 ```
 
 ## Architecture
@@ -92,12 +93,14 @@ The system follows the **Model-View-Controller (MVC)** architecture to separate 
 
 ## Contributors
 
-- [Dinul Hayat (23105826)](https://github.com/DinulHyt)
-- [Nasya Kemal Giffari (231057018)](https://github.com/KemalNasya)
-- [Ahmad Rizal (231057014)](https://github.com/ahmadrizal1st)
+- [Dinul Hayat](https://github.com/DinulHyt)
+- [Nasya Kemal Giffari](https://github.com/KemalNasya)
+- [Ahmad Rizal](https://github.com/ahmadrizal1st)
+
+## Implementation Guide
+
+For detailed instructions on how to run and install this application, please refer to [INSTALL.md](./INSTALL.md).
 
 ---
 
 Thank you for using this application.
-
-**CADIRA RENTAL**
